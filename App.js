@@ -2,9 +2,13 @@
 Escaner de codigos QR
 */
 import React, { Component, } from 'react';
-import { Text, View, Linking, TouchableHighlight, PermissionsAndroid, Platform, StyleSheet} from 'react-native';
+import { Text, View, Linking, TouchableHighlight, PermissionsAndroid, Platform, StyleSheet,Alert} from 'react-native';
 import { CameraKitCameraScreen, } from 'react-native-camera-kit';
-import {Icon, Button, CardItem, Card,} from 'native-base';
+import {Icon, Button, CardItem, Card, Title,} from 'native-base';
+
+
+
+
 
 export default class App extends Component {
   constructor() {
@@ -15,6 +19,49 @@ export default class App extends Component {
       opneScanner: false,
     };
   }
+
+
+  
+
+  buttonClickded  () {
+    //se recibe los datos del sensor mediante RabbitMQ
+    exchange.publish(data, routing_key, properties)
+    const {ubication} = this.state;
+    Alert.alert(
+    queue.bind(exchange, 'coordinate'),
+    queue.on('Las cordenadas del usuario son; ', (ubication) => {
+
+    })
+
+      [
+        {
+          text: "Copiar al portapapeles",
+          onPress: (writeToClipboard = async () => {
+            await Clipboard.setString(this.state.text);
+            alert('Copiado al portapapeles');
+          }) => console.log("Copiado al portapapeles"),
+        },
+        { text: "¡Entendido!", onPress: () => console.log("Entendido") }
+      ],
+      { cancelable: false }
+    );
+  };
+
+
+
+  //Verificar conexióna  internet
+  state = {isConnected: true};
+
+  handleConnectivityChange () {isConnected => {this.setState({ isConnected })};}
+  componentDidMount() {NetInfo.isConnected.addEventListener('connectionChange', this.handleConnectivityChange);}
+  componentWillUnmount() {NetInfo.isConnected.removeEventListener('connectionChange', this.handleConnectivityChange);}
+
+  
+
+  
+
+
+
   onOpenlink() {
     //Función para abrir una URL si es que se ha escanedo una
     Linking.openURL(this.state.qrvalue);
@@ -61,9 +108,13 @@ export default class App extends Component {
     let displayModal;
     //Se envia el valor del QR a esta vista
     if (!this.state.opneScanner) {
+      //Se verfica la conexión a internet
+      if (!this.state.isConnected) {
+        return <MiniOfflineSign />;
+      }
       return (
         <View style={styles.container}>
-            <Text style={styles.heading}>SkyHealth</Text>
+            <Text style={styles.heading}>Heverywhere</Text>
             <Text style={styles.simpleText}>{this.state.qrvalue ? 'Resultado: '+this.state.qrvalue : ''}</Text>
             {this.state.qrvalue.includes("http") ? 
               <TouchableHighlight
@@ -80,7 +131,17 @@ export default class App extends Component {
                 Escanear QR.
                 </Text>
             </TouchableHighlight>
+            <Text style={styles.simpleText}>Consultar ubicación del usuario</Text>
+            <CardItem>
+
+              <TouchableHighlight >
+                
+              </TouchableHighlight>
+              <Button  style = { loginIcon.facebook} onPress={this.buttonClickded, }><Icon type = 'MaterialCommunityIcons' name = 'crosshairs-gps'></Icon></Button>
+            </CardItem>
+            <CardItem>
             <Text style={styles.simpleText}>Visitanos</Text>
+            </CardItem>
             <CardItem>
               <Button style = { loginIcon.facebook} onPress={ ()=> Linking.openURL('https://sistemadeemergencias.000webhostapp.com') }><Icon type = 'MaterialCommunityIcons' name = 'web'></Icon></Button>
             </CardItem>
@@ -121,7 +182,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#2c3539',
     padding: 10,
     width:300,
-    marginTop:16
+    marginTop:18
   },
   heading: { 
     color: 'black', 
@@ -135,7 +196,7 @@ const styles = StyleSheet.create({
     fontSize: 20, 
     alignSelf: 'center', 
     padding: 10, 
-    marginTop: 16
+    marginTop: 1
   }
 });
 const loginIcon = StyleSheet.create({
